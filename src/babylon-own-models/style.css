@@ -1,0 +1,149 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  --bg-top: #142a1a;
+  --bg-mid: #234326;
+  --bg-bottom: #4a3a1f;
+  --panel: rgba(14, 27, 17, 0.76);
+  --panel-border: rgba(203, 232, 154, 0.24);
+  --text-main: #f4f8ec;
+  --text-muted: #d0ddbc;
+  --accent: #bfe36a;
+  --accent-2: #f2c66d;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  padding: 2rem 1.25rem 3rem;
+  color: var(--text-main);
+  font-family: "Inter", sans-serif;
+  line-height: 1.6;
+  background:
+    radial-gradient(110% 90% at 100% 0%, rgba(191, 227, 106, 0.16), transparent 55%),
+    radial-gradient(100% 80% at 0% 20%, rgba(242, 198, 109, 0.18), transparent 55%),
+    linear-gradient(160deg, var(--bg-top) 0%, var(--bg-mid) 45%, var(--bg-bottom) 100%);
+}
+
+.page {
+  width: min(1050px, 100%);
+  margin: 0 auto;
+}
+
+.hero {
+  padding: 1.4rem 1.5rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 22px;
+  background: var(--panel);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+  animation: rise-in 620ms ease-out both;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -10% -30% auto;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(191, 227, 106, 0.22), transparent 68%);
+  pointer-events: none;
+}
+
+.eyebrow {
+  margin-bottom: 0.35rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+
+.hero h1 {
+  margin-bottom: 0.45rem;
+  font-family: "Fraunces", serif;
+  letter-spacing: 0.01em;
+  font-size: clamp(1.85rem, 3.7vw, 2.7rem);
+  color: #fff8df;
+}
+
+.hero p {
+  color: var(--text-muted);
+  max-width: 62ch;
+}
+
+.model-card {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 22px;
+  background: var(--panel);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+  animation: rise-in 650ms ease-out both;
+  position: relative;
+  overflow: hidden;
+}
+
+.model-card h2 {
+  font-family: "Fraunces", serif;
+  font-size: clamp(1.15rem, 2.1vw, 1.55rem);
+  margin-bottom: 0.25rem;
+  color: var(--accent);
+}
+
+.model-card p {
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.viewer-frame {
+  display: block;
+  width: 100%;
+  height: min(53vw, 460px);
+  min-height: 280px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background:
+    linear-gradient(180deg, rgba(46, 76, 35, 0.36), rgba(28, 52, 23, 0.82)),
+    linear-gradient(140deg, #5d6a31, #2f4b2e 55%, #1a3321);
+}
+
+.model-card:nth-of-type(even) h2 {
+  color: var(--accent-2);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: 1.1rem 0.8rem 2rem;
+  }
+
+  .hero,
+  .model-card {
+    border-radius: 14px;
+  }
+
+  .viewer-frame {
+    height: 300px;
+    min-height: 230px;
+  }
+}
