@@ -1,60 +1,48 @@
 import './style.css'
-import typescriptLogo from './assets/typescript.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import { setupCounter } from './counter.ts'
+import { Color4, Engine, Scene, Vector3, ArcRotateCamera, HemisphericLight, CreateSphere, CreateGround } from '@babylonjs/core';
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${typescriptLogo}" class="framework" alt="TypeScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.ts</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+import "@babylonjs/core/Materials/standardMaterial";
+import { ShowInspector } from "@babylonjs/inspector";
 
-<div class="ticks"></div>
+const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
+const engine = new Engine(canvas);
+const scene = new Scene(engine);
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://www.typescriptlang.org" target="_blank">
-          <img class="button-icon" src="${typescriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+// This creates and positions a free camera (non-mesh)
+const camera = new ArcRotateCamera("camera", 0, 0, 0, Vector3.Zero(), scene);
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+// This targets the camera to scene origin
+camera.setTarget(Vector3.Zero());
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+// This attaches the camera to the canvas
+camera.attachControl(canvas, true);
+
+camera.setPosition(new Vector3(0, 15, 20));
+
+// This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+const light = new HemisphericLight("light", new Vector3(0, 1, 0.5), scene);
+
+// Default intensity is 1. Let's dim the light a small amount
+light.intensity = 0.7;
+
+// scene.clearColor = new Color4(0.25, 0.75, 0.9, 1);
+
+// Our built-in 'sphere' shape
+const sphere = CreateSphere("sphere1", { segments: 16, diameter: 2 }, scene);
+
+// Move the sphere upward 1/2 its height
+sphere.position.y = 1;
+
+// Our built-in 'ground' shape
+CreateGround("ground1", { width: 6, height: 6, subdivisions: 2 }, scene);
+
+ShowInspector(scene);
+
+engine.runRenderLoop(() => {
+  scene.render();
+});
+
+// Resize
+window.addEventListener("resize", () => {
+  engine.resize();
+});
