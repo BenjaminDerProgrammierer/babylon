@@ -1,6 +1,6 @@
 import './style.css'
 import "@babylonjs/core/Materials/standardMaterial";
-import { Texture, PBRMetallicRoughnessMaterial, StandardMaterial, Color3, Engine, Scene, Vector3, ArcRotateCamera, HemisphericLight, TransformNode, CreateBox, CreateCylinder, CreateSphere } from '@babylonjs/core';
+import { Texture, PBRMetallicRoughnessMaterial, StandardMaterial, Color3, Engine, Scene, Vector3, ArcRotateCamera, HemisphericLight, TransformNode, CreateBox, CreateCylinder, CreateSphere, Camera, FollowCamera, UniversalCamera } from '@babylonjs/core';
 import { ShowInspector } from "@babylonjs/inspector";
 import { Pane } from 'tweakpane';
 
@@ -8,6 +8,7 @@ import { Pane } from 'tweakpane';
 const PARAMS = {
   color: '#ff0055',
   size: 1,
+  camera: 'default',
 };
 
 const pane = new Pane({
@@ -24,6 +25,39 @@ pane.addBinding(PARAMS, 'color', {
 }).on('change', () => {
   // Update the custom material color when the parameter changes
   customMaterial.diffuseColor = Color3.FromHexString(PARAMS.color);
+});
+
+const cameras: { [key: string]: Camera | null } = {
+  'default': null,
+  'edge': null,
+  'center': null,
+  'fpv': null,
+}
+
+pane.addBinding(PARAMS, 'camera', {
+  label: 'Camera',
+  options: {
+    'Default': 'default',
+    'On dial edge': 'edge',
+    'On dial center': 'center',
+    'First Person Camera': 'fpv',
+  },
+  selected: 'default',
+}).on('change', () => {
+  const currentCamera = cameras[PARAMS.camera];
+
+  if (currentCamera) {
+    scene.activeCamera = currentCamera;
+  }
+});
+
+pane.addBinding(PARAMS, 'size', {
+  label: 'Size',
+  min: 0.5,
+  max: 1.5,
+}).on('change', () => {
+  // Update the watch size when the parameter changes
+  watchRoot.scaling = new Vector3(PARAMS.size, PARAMS.size, PARAMS.size);
 });
 
 pane.addBinding(PARAMS, 'size', {
@@ -77,13 +111,49 @@ const scene = new Scene(engine);
 
 const environment = scene.createDefaultEnvironment();
 
-const camera = new ArcRotateCamera("camera", 0, 0, 0, Vector3.Zero(), scene);
-camera.setTarget(Vector3.Zero());
-camera.attachControl(canvas, true);
-camera.setPosition(new Vector3(0, 15, 20));
-camera.radius = 24;
-camera.beta = 1.2;
-camera.alpha = 2.5;
+const defaultCamera = new ArcRotateCamera("camera", 0, 0, 0, Vector3.Zero(), scene);
+defaultCamera.setTarget(Vector3.Zero());
+defaultCamera.attachControl(canvas, true);
+defaultCamera.setPosition(new Vector3(0, 15, 20));
+defaultCamera.radius = 24;
+defaultCamera.beta = 1.2;
+defaultCamera.alpha = 2.5;
+
+// Edge camera always looks at the center of the watch but is positioned on the edge of the watch face, where the second hand meets the watch face
+const edgeCamera = new FollowCamera("edgeCamera", new Vector3(0, 0.25, 2.5), scene);
+edgeCamera.setTarget(Vector3.Zero());
+edgeCamera.radius = 24;
+edgeCamera.heightOffset = 0.25;
+edgeCamera.rotationOffset = 180;
+edgeCamera.cameraAcceleration = 0.005
+edgeCamera.maxCameraSpeed = 10;
+
+
+// Center camera is positioned at the center of the watch face and looks outward towards the edge of the watch face, where the second hand meets the watch face
+const centerCamera = new FollowCamera("centerCamera", new Vector3(0, 0.25, 0), scene);
+centerCamera.setTarget(new Vector3(0, 0.25, 2.5));
+centerCamera.radius = 24;
+centerCamera.heightOffset = 0.25;
+centerCamera.rotationOffset = 180;
+centerCamera.cameraAcceleration = 0.005
+centerCamera.maxCameraSpeed = 10;
+
+const fpvCamera = new UniversalCamera("fpvCamera", new Vector3(0, 0.25, 0), scene);
+fpvCamera.setTarget(new Vector3(0, 0, 0)); // look towards the center of the watch face
+fpvCamera.attachControl(canvas, true);
+fpvCamera.speed = 0.1; // slow down movement speed for better control
+
+fpvCamera.keysUp.push(87); // W
+fpvCamera.keysDown.push(83); // S
+fpvCamera.keysLeft.push(65); // A
+fpvCamera.keysRight.push(68); // D
+fpvCamera.keysUpward.push(32); // Space
+fpvCamera.keysDownward.push(16); // Shift
+
+cameras['default'] = defaultCamera;
+cameras['edge'] = edgeCamera;
+cameras['center'] = centerCamera;
+cameras['fpv'] = fpvCamera;
 
 const light = new HemisphericLight("light", new Vector3(0, 1, 0.5), scene);
 light.intensity = 0.5;
@@ -196,6 +266,8 @@ secondHand.setPivotPoint(new Vector3(0, 0, 1.25));
 secondHand.material = polishedRoseGoldMaterial;
 secondHand.parent = watchRoot;
 watchMeshes.push(secondHand);
+edgeCamera.lockedTarget = secondHand;
+centerCamera.lockedTarget = secondHand;
 
 // watch stand
 const watchStand = CreateBox("watchStand", { width: 5, height: 0.5, depth: 5 }, scene);
