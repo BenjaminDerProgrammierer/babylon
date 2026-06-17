@@ -1,5 +1,5 @@
 {
-  "name": "babylon-scene",
+  "name": "babylon-models",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,12 +9,13 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "typescript": "~6.0.3",
-    "vite": "^8.0.16"
+    "typescript": "~6.0.2",
+    "vite": "^8.0.12"
   },
   "dependencies": {
-    "@babylonjs/core": "^9.12.1",
-    "@babylonjs/inspector": "^9.12.1",
+    "@babylonjs/core": "^9.12.0",
+    "@babylonjs/inspector": "^9.12.0",
+    "@babylonjs/loaders": "^9.12.0",
     "@tweakpane/core": "^2.0.5",
     "tweakpane": "^4.0.5"
   }
